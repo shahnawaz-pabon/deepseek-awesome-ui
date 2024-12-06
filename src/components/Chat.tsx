@@ -86,7 +86,7 @@ export default function ChatUI() {
         <div className="flex h-screen w-full bg-gray-950 text-white overflow-hidden">
             {/* Sidebar */}
             {sidebarOpen && (
-                <div className="w-64 bg-gray-900 p-4 border-r border-gray-800">
+                <div className="w-64 bg-gray-900 p-4 border-r border-gray-800 sticky top-0 h-screen">
                     <h2 className="text-xl font-semibold mb-4">Sidebar</h2>
                     <p className="text-gray-400">Additional features here...</p>
                 </div>
@@ -94,7 +94,7 @@ export default function ChatUI() {
 
             <div className="flex-1 flex flex-col items-center">
                 {/* Header */}
-                <div className="w-full max-w-[1200px] flex justify-between items-center px-6 py-4 text-xl font-semibold bg-gray-900 border-b border-gray-800">
+                <div className="w-full max-w-[1200px] flex justify-between items-center px-6 py-4 text-xl font-semibold bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
                     <Button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-400 bg-gray-800 hover:bg-gray-700 px-2 py-2 rounded-lg">
                         <Menu className="w-6 h-6" />
                     </Button>
