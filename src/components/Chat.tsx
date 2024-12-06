@@ -28,6 +28,7 @@ export default function ChatUI() {
     const [file, setFile] = useState<File | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [model, setModel] = useState<string>("deepseek-r1:1.5b"); // Default model
+    const [codeCopyButtonText, setCodeCopyButtonText] = useState<string>("Copy");
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -128,15 +129,37 @@ export default function ChatUI() {
                                             code(props) {
                                                 const { children, className, node, ...rest } = props;
                                                 const match = /language-(\w+)/.exec(className || '');
+                                                const codeText = String(children).trim();
+                                                const language = match ? match[1] : 'plaintext';
+
                                                 return match ? (
-                                                    <SyntaxHighlighter
-                                                        {...rest}
-                                                        style={vscDarkPlus}
-                                                        language={match[1]}
-                                                        PreTag="div"
-                                                    >
-                                                        {String(children).replace(/\n$/, '')}
-                                                    </SyntaxHighlighter>
+                                                    <div className="relative bg-gray-900 rounded-xl overflow-hidden shadow-md">
+                                                        {/* Language Label */}
+                                                        <div className="flex justify-between items-center px-4 py-2 bg-gray-800 text-gray-400 text-xs font-semibold rounded-t-xl">
+                                                            <span>{language.toUpperCase()}</span>
+                                                            {/* Copy Button */}
+                                                            <button
+                                                                onClick={() => {
+                                                                    navigator.clipboard.writeText(codeText);
+                                                                    setCodeCopyButtonText("Copied!");
+                                                                    setTimeout(() => {
+                                                                        setCodeCopyButtonText("Copy");
+                                                                    }, 2000);
+                                                                }}
+                                                                className="text-gray-400 hover:text-white transition"
+                                                            >
+                                                                {codeCopyButtonText}
+                                                            </button>
+                                                        </div>
+                                                        <SyntaxHighlighter
+                                                            {...rest}
+                                                            style={vscDarkPlus}
+                                                            language={language}
+                                                            PreTag="div"
+                                                        >
+                                                            {codeText}
+                                                        </SyntaxHighlighter>
+                                                    </div>
                                                 ) : (
                                                     <code {...rest} className={className}>
                                                         {children}
