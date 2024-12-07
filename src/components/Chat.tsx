@@ -135,7 +135,7 @@ export default function ChatUI() {
                                                 return match ? (
                                                     <div className="relative bg-gray-900 rounded-xl overflow-hidden shadow-md">
                                                         {/* Language Label */}
-                                                        <div className="flex justify-between items-center px-4 py-2 bg-gray-800 text-gray-400 text-xs font-semibold rounded-t-xl">
+                                                        <div className="flex justify-between items-center px-4 py-2 bg-gray-400 text-gray-800 text-xs font-semibold rounded-t-xl">
                                                             <span>{language.toUpperCase()}</span>
                                                             {/* Copy Button */}
                                                             <button
@@ -146,7 +146,7 @@ export default function ChatUI() {
                                                                         setCodeCopyButtonText("Copy");
                                                                     }, 2000);
                                                                 }}
-                                                                className="text-gray-400 hover:text-white transition"
+                                                                className="text-gray-800 hover:text-white transition"
                                                             >
                                                                 {codeCopyButtonText}
                                                             </button>
