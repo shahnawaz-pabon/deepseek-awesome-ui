@@ -1,11 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { Card, CardContent } from '@/components/ui/Card';
 import { ScrollArea } from '@/components/ui/ScrollArea';
-import { Send, Paperclip, Menu } from 'lucide-react';
+import { Send, Paperclip, PanelLeftOpen, PanelLeftClose } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { sendMessage } from "@/utils/api";
 // @ts-ignore
@@ -23,11 +21,10 @@ export default function ChatUI() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState<string>("");
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [chatWidth, setChatWidth] = useState(1200);
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const [file, setFile] = useState<File | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const [model, setModel] = useState<string>("deepseek-r1:1.5b"); // Default model
+    const [model, setModel] = useState<string>("deepseek-r1:8b"); // Default model
     const [codeCopyButtonText, setCodeCopyButtonText] = useState<string>("Copy");
 
     useEffect(() => {
@@ -84,46 +81,33 @@ export default function ChatUI() {
     };
 
     return (
-        <div className="flex h-screen w-full bg-gray-950 text-white overflow-hidden">
+        <div className={`flex h-screen w-full bg-gray-950 text-white overflow-hidden transition-all duration-300 ${sidebarOpen ? '' : 'pl-0'}`}>
             {/* Sidebar */}
-            {sidebarOpen && (
-                <div className="w-64 bg-gray-900 p-4 border-r border-gray-800 sticky top-0 h-screen">
-                    <h2 className="text-xl font-semibold mb-4">Sidebar</h2>
-                    <p className="text-gray-400">Additional features here...</p>
-                </div>
-            )}
+            <div className={`bg-gray-900 border-r border-gray-800 h-screen transition-all duration-300 ${sidebarOpen ? 'w-40 p-4' : 'w-0 overflow-hidden'}`}>
+                {sidebarOpen && (
+                    <>
+                        <h2 className="text-xl font-semibold mb-4">Sidebar</h2>
+                        <p className="text-gray-400">Additional features here...</p>
+                    </>
+                )}
+            </div>
 
-            <div className="flex-1 flex flex-col items-center">
+            {/* Main Chat Area */}
+            <div className="flex-1 flex flex-col items-center bg-gray-900">
                 {/* Header */}
-                <div className="w-full max-w-[1200px] flex justify-between items-center px-6 py-4 text-xl font-semibold bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
+                <div className="w-full flex justify-start items-center px-6 py-4 text-xl font-semibold bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
                     <Button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-400 bg-gray-800 hover:bg-gray-700 px-2 py-2 rounded-lg">
-                        <Menu className="w-6 h-6" />
+                        {sidebarOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
                     </Button>
-                    DeepSeek AI
-                    <input
-                        type="range"
-                        min="600"
-                        max="1200"
-                        value={chatWidth}
-                        onChange={(e) => setChatWidth(Number(e.target.value))}
-                        className="w-32"
-                    />
+                    <div className="flex-grow text-center">Awesome Chat UI with AI</div>
                 </div>
 
                 {/* Chat Window */}
-                <div className="flex flex-col h-full max-w-[1200px]" style={{ width: chatWidth }}>
+                <div className="flex flex-col h-full w-full max-w-4xl px-4 overflow-auto">
                     <ScrollArea>
                         {messages.map((msg) => (
-                            <div
-                                key={msg.id}
-                                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}
-                            >
-                                <div
-                                    className={`max-w-[75%] px-4 py-3 rounded-lg ${msg.role === 'user' ?
-                                        'bg-gradient-to-r from-blue-600 to-purple-600 text-white' :
-                                        'bg-gray-800 text-white'
-                                        } shadow-md transition-all duration-200 hover:shadow-lg`}
-                                >
+                            <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
+                                <div className={`max-w-[75%] px-4 py-3 rounded-lg shadow-md transition-all duration-200 ${msg.role === 'user' ? 'bg-blue-600' : 'bg-gray-800'} text-white`}>
                                     <ReactMarkdown
                                         components={{
                                             code(props) {
@@ -154,6 +138,8 @@ export default function ChatUI() {
                                                         <SyntaxHighlighter
                                                             {...rest}
                                                             style={vscDarkPlus}
+                                                            showLineNumbers={true}
+                                                            customStyle={{ background: 'none' }}
                                                             language={language}
                                                             PreTag="div"
                                                         >
@@ -178,25 +164,22 @@ export default function ChatUI() {
 
                     {/* Chat Input */}
                     <div className="flex items-center p-4 bg-gray-900 border-t border-gray-800">
-                        <Button
-                            className="mr-3 bg-gray-800 hover:bg-gray-700 text-gray-400 px-3 py-2 rounded-lg transition-all duration-200 hover:scale-105"
-                            onClick={() => alert('Attachment feature coming soon!')}
-                        >
-                            <Paperclip className="w-5 h-5" />
-                        </Button>
-                        <Input
+                        <textarea
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             placeholder="Type a message..."
-                            className="flex-1 px-4 py-2 rounded-lg bg-gray-800 border-none text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            onKeyUp={(e) => e.key === 'Enter' && handleSend()}
+                            className="flex-1 px-4 py-2 h-16 rounded-lg bg-gray-800 border-none text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                            onKeyUp={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
                         />
-                        <Button
-                            onClick={handleSend}
-                            className="ml-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2 rounded-lg transition-all duration-200 hover:scale-105"
-                        >
-                            <Send className="w-5 h-5" />
-                        </Button>
+
+                        <div className="flex gap-2 mr-200">
+                            <Button className="bg-gray-700 text-gray-400 hover:bg-gray-600 p-2 rounded-lg">
+                                <Paperclip className="w-3 h-3" />
+                            </Button>
+                            <Button onClick={handleSend} className="relative mr-200 bg-blue-600 hover:bg-blue-700 p-2 rounded-lg">
+                                <Send className="w-3 h-3" />
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
